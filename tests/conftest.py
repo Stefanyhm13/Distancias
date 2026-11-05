@@ -61,7 +61,7 @@ def excel_usos(registros, fecha="2026-10-13") -> BytesIO:
 
 @pytest.fixture
 def params():
-    """Parámetros iniciales de las rutas (cuadro original)."""
+    """Parámetros iniciales de las rutas (día hábil)."""
     from src.parametros import parametros_iniciales
     return parametros_iniciales()
 

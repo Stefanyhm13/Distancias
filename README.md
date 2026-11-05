@@ -21,8 +21,9 @@ streamlit run app.py
 
 1. (Opcional) **⚙️ Modificar parámetros**: la ventana tiene una pestaña por tipo de día
    (**HÁBIL**, **SÁBADO** y **DOMINGO**), cada una con su cumplimiento exigido (%),
-   distancias por ruta y minutos para agrupar usos sin viaje. Los cambios se guardan en
-   `parametros.json` y se conservan para los próximos usos.
+   distancia y tiempo de ciclo por ruta (el tiempo de ciclo cambia según el tipo de día)
+   y minutos para agrupar usos sin viaje. Los cambios se guardan en `parametros.json` y se
+   conservan para los próximos usos.
 2. Cargar el **archivo de usos** (`Usos.xlsx`).
 3. Cargar el **archivo de servicios** (`PlantillaGestionServicios`).
 4. Clic en **Analizar día**. La app lee la fecha del informe, detecta con el calendario
@@ -83,8 +84,9 @@ Se analiza **cada viaje por separado**. Un viaje es cada registro del informe de
   usos de esa fecha y los de la madrugada siguiente (hasta las 03:30), para los viajes que
   pasan de medianoche.
 - **Duración del viaje** = Fin Servicio Efectivo − Inicio Servicio Efectivo (columnas O y P).
-- **Mínimo del viaje** = duración en minutos × distancia al 95 % por minuto de su ruta.
-  Ejemplo: viaje de la 6019 de 25,9 minutos → 25,9 × 144,47 = 3.742 m.
+- **Mínimo del viaje** = duración en minutos × distancia al 95 % por minuto de su ruta,
+  según el tipo de día. Ejemplo: viaje de la 6019 en día hábil de 25,9 minutos →
+  4.130 m ÷ 59,4 min × 0,95 = 66,05 m por minuto → 25,9 × 66,05 = 1.711 m.
 - **Usos del viaje**: usos del mismo bus cuya hora está entre **"Inicio de Servicio" y
   "Fin de Servicio"** (columnas I y J), que incluyen el abordaje antes del inicio efectivo.
   La duración y el mínimo de distancia sí usan el inicio y fin **efectivos** (O y P).
@@ -107,14 +109,20 @@ Se analiza **cada viaje por separado**. Un viaje es cada registro del informe de
 
 ### Distancia por ruta
 
-Configurable en **Modificar parámetros**:
+Configurable en **Modificar parámetros**, una tabla por tipo de día:
 
 | Columna | Cálculo |
 |---|---|
 | Distancia de ciclo (m) | Dato editable |
-| Tiempo de ciclo (min) | Dato editable |
+| Tiempo de ciclo (min) | Dato editable, distinto para hábil, sábado y domingo/festivo |
 | Distancia x min | Distancia de ciclo ÷ Tiempo de ciclo |
 | Distancia al 95% x min | Distancia x min × cumplimiento exigido (0,95 por defecto) |
+
+El **tiempo de ciclo** es integración → cabecera → integración (dos itinerarios). Los valores
+iniciales salen de la tabla de tiempos de viaje por tipo de día (tiempo de ciclo = tiempo de
+itinerario × 2) y están en `RUTAS_INICIALES` de `config.py`. La distancia de ciclo es la misma
+para los tres tipos de día. Las rutas 6014A y 6016A no estaban en esa tabla y conservan el
+tiempo anterior en los tres días.
 
 Las rutas **sin parámetros** (por ejemplo 6017) solo se revisan por "sin distancia" y
 aparecen en "Observaciones".
@@ -147,10 +155,12 @@ Las filas a revisar llevan un tinte suave de su color y la diferencia negativa s
 
 ## Configuración
 
-- **Desde la app** (⚙️ Modificar parámetros): cumplimiento exigido (95 % inicial),
-  distancias por ruta y minutos para agrupar los usos sin viaje.
-  Se guardan en `parametros.json`. El botón "Valores iniciales" vuelve a los del cuadro original.
-- **En [`config.py`](config.py)**: valores iniciales de las rutas, porcentaje exigido inicial (95 %),
+- **Desde la app** (⚙️ Modificar parámetros): por cada tipo de día, cumplimiento exigido
+  (95 % inicial), distancia y tiempo de ciclo por ruta y minutos para agrupar los usos sin viaje.
+  Se guardan en `parametros.json`. El botón "Valores iniciales" vuelve a los de `config.py`
+  solo en la pestaña donde se presiona (con el tiempo de ciclo de ese tipo de día).
+- **En [`config.py`](config.py)**: valores iniciales de las rutas (distancia y tiempo de ciclo
+  hábil, sábado y domingo), porcentaje exigido inicial (95 %),
   hora límite de la madrugada siguiente, listado de líneas y estructura esperada de los archivos.
 
 ## Estructura del proyecto
@@ -160,6 +170,7 @@ app.py                  Interfaz: arma la página y conecta las piezas
 config.py               Reglas de negocio y estructura de los archivos
 src/
   normalizacion.py      Limpieza de valores (buses, líneas, horas)
+  calendario.py         Tipo de día (hábil, sábado, domingo/festivo) con festivos de Colombia
   lectura.py            Lectura y validación de los Excel de entrada
   parametros.py         Parámetros por ruta: cálculos, validación, guardar y cargar
   analisis.py           Análisis por viaje: mínimo, usos por viaje, usos sin viaje
@@ -168,13 +179,21 @@ src/
   reporte_consolidado.py  Excel del consolidado (Horarios, Resumen, Evidencia)
   reporte_excel.py      Generación y formato del informe Excel
   filtros.py            Filtros de las tablas
+  historial.py          Base de datos SQLite del historial de días revisados
 ui/
   componentes.py        Tarjetas, leyenda, tablas con filtros
-  parametros.py         Ventana "Modificar parámetros"
+  parametros.py         Ventana "Modificar parámetros" (una pestaña por tipo de día)
+  tipo_dia.py           Aviso para confirmar o cambiar el tipo de día
   consolidado.py        PSO, casillas "Reclamar" y botón del consolidado
+  historial.py          Sección "Historial de días revisados"
+  ilustraciones.py      Ilustraciones de los buses (SVG)
+  traduccion.py         Textos de Streamlit en español
   estilos.css           Estilos visuales
 assets/logo.png
+parametros.json         Parámetros guardados desde la app (por tipo de día)
 tests/                  Pruebas automáticas con datos de ejemplo
+datos/                  historial.db (se crea sola; no se sube a git)
+consolidados/           Copias de los consolidados generados (no se sube a git)
 ```
 
 ## Pruebas

@@ -125,7 +125,7 @@ def _al_cambiar_porcentaje(tipo: str) -> None:
 
 
 def _restaurar(tipo: str) -> None:
-    st.session_state[CLAVE_BORRADOR][tipo] = modelo.parametros_iniciales()
+    st.session_state[CLAVE_BORRADOR][tipo] = modelo.parametros_iniciales(tipo)
     _cargar_campos(tipo, _borrador(tipo))
     st.session_state.pop(CLAVE_ERRORES, None)
     _refrescar()

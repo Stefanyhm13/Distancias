@@ -44,7 +44,12 @@ def test_minimo_es_duracion_por_distancia_al_95(archivos_basicos, params):
 
 
 def test_caso_real_sao_004(params):
-    """Viajes reales de SAO-004 entre 18:03 y 19:27 (ruta 6019, 144,47 m/min)."""
+    """Viajes reales de SAO-004 entre 18:03 y 19:27 (ruta 6019, 144,47 m/min).
+
+    Se fija el tiempo de ciclo de la 6019 que tenía el cuadro cuando se tomó el caso
+    (27,1579 min), para que la prueba no dependa de los valores iniciales de config.py.
+    """
+    params.rutas.loc[params.rutas["linea"] == "6019", "tiempo_ciclo_min"] = 27.1579
     servicios = excel_servicios([
         servicio("SAO-004", 6019, 4324, "18:03:11", "18:25:25", numero=4339),
         servicio("SAO-004", 6019, 6, "18:25:26", "18:36:49", numero=4450),

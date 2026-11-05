@@ -122,12 +122,16 @@ def limpiar_rutas(df: pd.DataFrame) -> pd.DataFrame:
     return df.drop(columns="_o").reset_index(drop=True)
 
 
-def rutas_iniciales() -> pd.DataFrame:
-    return limpiar_rutas(pd.DataFrame(RUTAS_INICIALES, columns=list(COLUMNAS_RUTAS)))
+def rutas_iniciales(tipo: str = HABIL) -> pd.DataFrame:
+    """Rutas iniciales de un tipo de día: la distancia es la misma, el tiempo de ciclo cambia."""
+    i = TIPOS_DIA.index(tipo)
+    filas = [(linea, distancia, tiempos[i]) for linea, distancia, *tiempos in RUTAS_INICIALES]
+    return limpiar_rutas(pd.DataFrame(filas, columns=list(COLUMNAS_RUTAS)))
 
 
-def parametros_iniciales() -> Parametros:
-    return Parametros(rutas_iniciales(), MINUTOS_AGRUPAR_USOS_INICIAL, PORCENTAJE_EXIGIDO_INICIAL)
+def parametros_iniciales(tipo: str = HABIL) -> Parametros:
+    return Parametros(rutas_iniciales(tipo), MINUTOS_AGRUPAR_USOS_INICIAL,
+                      PORCENTAJE_EXIGIDO_INICIAL)
 
 
 # ── Persistencia ──────────────────────────────────────────────────────────────
@@ -168,7 +172,7 @@ def cargar(ruta: Path = RUTA_ARCHIVO) -> tuple[Parametros, str | None]:
 # ── Parámetros por tipo de día (hábil, sábado, domingo/festivo) ───────────────
 
 def iniciales_por_dia() -> dict[str, Parametros]:
-    return {tipo: parametros_iniciales() for tipo in TIPOS_DIA}
+    return {tipo: parametros_iniciales(tipo) for tipo in TIPOS_DIA}
 
 
 def guardar_por_dia(por_dia: dict[str, Parametros], ruta: Path = RUTA_ARCHIVO) -> None:
@@ -180,7 +184,7 @@ def cargar_por_dia(ruta: Path = RUTA_ARCHIVO) -> tuple[dict[str, Parametros], st
     """{tipo de día: parámetros}, aviso.
 
     Un archivo de versiones anteriores (un solo juego de parámetros) se usa igual para
-    los tres tipos de día. Si falta un tipo se usan los de día hábil.
+    los tres tipos de día. Si falta un tipo se usan sus valores iniciales.
     """
     if not ruta.exists():
         return iniciales_por_dia(), None
@@ -188,8 +192,7 @@ def cargar_por_dia(ruta: Path = RUTA_ARCHIVO) -> tuple[dict[str, Parametros], st
         datos = json.loads(ruta.read_text(encoding="utf-8"))
         if "tipos_dia" in datos:
             leidos = {t: _desde_dict(d) for t, d in datos["tipos_dia"].items() if t in TIPOS_DIA}
-            base = leidos.get(HABIL) or parametros_iniciales()
-            por_dia = {t: leidos.get(t) or copy.deepcopy(base) for t in TIPOS_DIA}
+            por_dia = {t: leidos.get(t) or parametros_iniciales(t) for t in TIPOS_DIA}
         else:
             unico = _desde_dict(datos)
             por_dia = {t: copy.deepcopy(unico) for t in TIPOS_DIA}

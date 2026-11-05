@@ -5,20 +5,30 @@ import pytest
 
 from src.parametros import Parametros, cargar, guardar, parametros_iniciales, rutas_iniciales
 
-# Valores del cuadro original: distancia al 95 % por minuto
-CUADRO_ORIGINAL_95 = {
-    "6001": 183.11, "6002": 208.85, "6004": 249.98, "6006C": 175.74,
-    "6011": 132.46, "6016A": 212.99, "6019": 144.47, "6024": 195.83, "6025": 250.96,
-    "6025B": 163.72,
+# Valores iniciales de día HÁBIL: distancia al 95 % por minuto
+CUADRO_HABIL_95 = {
+    "6001": 146.43, "6002": 189.88, "6004": 195.31, "6006C": 179.55,
+    "6011": 106.54, "6016A": 212.99, "6019": 66.05, "6024": 171.30, "6025": 229.19,
+    "6025B": 144.80,
 }
 
 
 def test_valores_iniciales_coinciden_con_el_cuadro():
     t = parametros_iniciales().tabla_calculada().set_index("linea")
     assert len(t) == 32
-    for linea, valor in CUADRO_ORIGINAL_95.items():
+    for linea, valor in CUADRO_HABIL_95.items():
         assert t.loc[linea, "distancia_95"] == pytest.approx(valor, abs=0.01)
-    assert t.loc["6001", "distancia_x_min"] == pytest.approx(192.74, abs=0.01)
+    assert t.loc["6001", "distancia_x_min"] == pytest.approx(154.14, abs=0.01)
+
+
+def test_tiempo_de_ciclo_inicial_cambia_por_tipo_de_dia():
+    tiempos = {tipo: parametros_iniciales(tipo).rutas.set_index("linea")["tiempo_ciclo_min"]
+               for tipo in ("HABIL", "SABADO", "DOMINGO")}
+    assert (tiempos["HABIL"]["6019"], tiempos["SABADO"]["6019"],
+            tiempos["DOMINGO"]["6019"]) == (59.4, 57.94, 51.94)
+    distancias = {tipo: parametros_iniciales(tipo).rutas["distancia_ciclo_m"].tolist()
+                  for tipo in ("HABIL", "SABADO", "DOMINGO")}
+    assert distancias["HABIL"] == distancias["SABADO"] == distancias["DOMINGO"]
 
 
 def test_columnas_calculadas_siguen_a_los_datos():
