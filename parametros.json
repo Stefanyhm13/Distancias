@@ -1,0 +1,502 @@
+{
+  "tipos_dia": {
+    "HABIL": {
+      "minutos_agrupar_usos": 15,
+      "porcentaje_exigido": 0.95,
+      "rutas": [
+        {
+          "linea": "6001",
+          "distancia_ciclo_m": 5549,
+          "tiempo_ciclo_min": 36.0
+        },
+        {
+          "linea": "6002",
+          "distancia_ciclo_m": 14151,
+          "tiempo_ciclo_min": 70.8
+        },
+        {
+          "linea": "6002A",
+          "distancia_ciclo_m": 10844,
+          "tiempo_ciclo_min": 66.0
+        },
+        {
+          "linea": "6003",
+          "distancia_ciclo_m": 7808,
+          "tiempo_ciclo_min": 38.0
+        },
+        {
+          "linea": "6004",
+          "distancia_ciclo_m": 13240,
+          "tiempo_ciclo_min": 64.4
+        },
+        {
+          "linea": "6004A",
+          "distancia_ciclo_m": 14865,
+          "tiempo_ciclo_min": 66.0
+        },
+        {
+          "linea": "6005",
+          "distancia_ciclo_m": 10230,
+          "tiempo_ciclo_min": 63.0
+        },
+        {
+          "linea": "6006C",
+          "distancia_ciclo_m": 3213,
+          "tiempo_ciclo_min": 17.0
+        },
+        {
+          "linea": "6007",
+          "distancia_ciclo_m": 7680,
+          "tiempo_ciclo_min": 63.0
+        },
+        {
+          "linea": "6008",
+          "distancia_ciclo_m": 9079,
+          "tiempo_ciclo_min": 61.2
+        },
+        {
+          "linea": "6009",
+          "distancia_ciclo_m": 9770,
+          "tiempo_ciclo_min": 72.0
+        },
+        {
+          "linea": "6010C",
+          "distancia_ciclo_m": 12701,
+          "tiempo_ciclo_min": 83.12
+        },
+        {
+          "linea": "6011",
+          "distancia_ciclo_m": 3970,
+          "tiempo_ciclo_min": 35.4
+        },
+        {
+          "linea": "6012",
+          "distancia_ciclo_m": 5748,
+          "tiempo_ciclo_min": 34.2
+        },
+        {
+          "linea": "6012A",
+          "distancia_ciclo_m": 4438,
+          "tiempo_ciclo_min": 33.3
+        },
+        {
+          "linea": "6013",
+          "distancia_ciclo_m": 8285,
+          "tiempo_ciclo_min": 63.18
+        },
+        {
+          "linea": "6014",
+          "distancia_ciclo_m": 5104,
+          "tiempo_ciclo_min": 28.4
+        },
+        {
+          "linea": "6014A",
+          "distancia_ciclo_m": 5352,
+          "tiempo_ciclo_min": 30.0
+        },
+        {
+          "linea": "6015A",
+          "distancia_ciclo_m": 10022,
+          "tiempo_ciclo_min": 66.12
+        },
+        {
+          "linea": "6016",
+          "distancia_ciclo_m": 12671,
+          "tiempo_ciclo_min": 72.6
+        },
+        {
+          "linea": "6016A",
+          "distancia_ciclo_m": 10974,
+          "tiempo_ciclo_min": 48.9474
+        },
+        {
+          "linea": "6018",
+          "distancia_ciclo_m": 7423,
+          "tiempo_ciclo_min": 56.52
+        },
+        {
+          "linea": "6019",
+          "distancia_ciclo_m": 4130,
+          "tiempo_ciclo_min": 59.4
+        },
+        {
+          "linea": "6019A",
+          "distancia_ciclo_m": 4318,
+          "tiempo_ciclo_min": 39.6
+        },
+        {
+          "linea": "6020",
+          "distancia_ciclo_m": 8588,
+          "tiempo_ciclo_min": 55.5
+        },
+        {
+          "linea": "6021",
+          "distancia_ciclo_m": 8161,
+          "tiempo_ciclo_min": 64.4
+        },
+        {
+          "linea": "6022",
+          "distancia_ciclo_m": 12643,
+          "tiempo_ciclo_min": 91.4
+        },
+        {
+          "linea": "6022A",
+          "distancia_ciclo_m": 13582,
+          "tiempo_ciclo_min": 98.4
+        },
+        {
+          "linea": "6023",
+          "distancia_ciclo_m": 3970,
+          "tiempo_ciclo_min": 28.34
+        },
+        {
+          "linea": "6024",
+          "distancia_ciclo_m": 5175,
+          "tiempo_ciclo_min": 28.7
+        },
+        {
+          "linea": "6025",
+          "distancia_ciclo_m": 6340,
+          "tiempo_ciclo_min": 26.28
+        },
+        {
+          "linea": "6025B",
+          "distancia_ciclo_m": 2585,
+          "tiempo_ciclo_min": 16.96
+        }
+      ]
+    },
+    "SABADO": {
+      "minutos_agrupar_usos": 15,
+      "porcentaje_exigido": 0.95,
+      "rutas": [
+        {
+          "linea": "6001",
+          "distancia_ciclo_m": 5549,
+          "tiempo_ciclo_min": 36.0
+        },
+        {
+          "linea": "6002",
+          "distancia_ciclo_m": 14151,
+          "tiempo_ciclo_min": 70.4
+        },
+        {
+          "linea": "6002A",
+          "distancia_ciclo_m": 10844,
+          "tiempo_ciclo_min": 64.0
+        },
+        {
+          "linea": "6003",
+          "distancia_ciclo_m": 7808,
+          "tiempo_ciclo_min": 38.0
+        },
+        {
+          "linea": "6004",
+          "distancia_ciclo_m": 13240,
+          "tiempo_ciclo_min": 62.0
+        },
+        {
+          "linea": "6004A",
+          "distancia_ciclo_m": 14865,
+          "tiempo_ciclo_min": 64.0
+        },
+        {
+          "linea": "6005",
+          "distancia_ciclo_m": 10230,
+          "tiempo_ciclo_min": 63.0
+        },
+        {
+          "linea": "6006C",
+          "distancia_ciclo_m": 3213,
+          "tiempo_ciclo_min": 18.0
+        },
+        {
+          "linea": "6007",
+          "distancia_ciclo_m": 7680,
+          "tiempo_ciclo_min": 62.0
+        },
+        {
+          "linea": "6008",
+          "distancia_ciclo_m": 9079,
+          "tiempo_ciclo_min": 64.24
+        },
+        {
+          "linea": "6009",
+          "distancia_ciclo_m": 9770,
+          "tiempo_ciclo_min": 72.0
+        },
+        {
+          "linea": "6010C",
+          "distancia_ciclo_m": 12701,
+          "tiempo_ciclo_min": 78.6
+        },
+        {
+          "linea": "6011",
+          "distancia_ciclo_m": 3970,
+          "tiempo_ciclo_min": 32.55
+        },
+        {
+          "linea": "6012",
+          "distancia_ciclo_m": 5748,
+          "tiempo_ciclo_min": 34.788
+        },
+        {
+          "linea": "6012A",
+          "distancia_ciclo_m": 4438,
+          "tiempo_ciclo_min": 33.0
+        },
+        {
+          "linea": "6013",
+          "distancia_ciclo_m": 8285,
+          "tiempo_ciclo_min": 62.4
+        },
+        {
+          "linea": "6014",
+          "distancia_ciclo_m": 5104,
+          "tiempo_ciclo_min": 28.2
+        },
+        {
+          "linea": "6014A",
+          "distancia_ciclo_m": 5352,
+          "tiempo_ciclo_min": 30.0
+        },
+        {
+          "linea": "6015A",
+          "distancia_ciclo_m": 10022,
+          "tiempo_ciclo_min": 64.6
+        },
+        {
+          "linea": "6016",
+          "distancia_ciclo_m": 12671,
+          "tiempo_ciclo_min": 75.24
+        },
+        {
+          "linea": "6016A",
+          "distancia_ciclo_m": 10974,
+          "tiempo_ciclo_min": 48.9474
+        },
+        {
+          "linea": "6018",
+          "distancia_ciclo_m": 7423,
+          "tiempo_ciclo_min": 54.7232
+        },
+        {
+          "linea": "6019",
+          "distancia_ciclo_m": 4130,
+          "tiempo_ciclo_min": 57.94
+        },
+        {
+          "linea": "6019A",
+          "distancia_ciclo_m": 4318,
+          "tiempo_ciclo_min": 35.2
+        },
+        {
+          "linea": "6020",
+          "distancia_ciclo_m": 8588,
+          "tiempo_ciclo_min": 54.6
+        },
+        {
+          "linea": "6021",
+          "distancia_ciclo_m": 8161,
+          "tiempo_ciclo_min": 61.56
+        },
+        {
+          "linea": "6022",
+          "distancia_ciclo_m": 12643,
+          "tiempo_ciclo_min": 89.2
+        },
+        {
+          "linea": "6022A",
+          "distancia_ciclo_m": 13582,
+          "tiempo_ciclo_min": 95.0
+        },
+        {
+          "linea": "6023",
+          "distancia_ciclo_m": 3970,
+          "tiempo_ciclo_min": 28.418
+        },
+        {
+          "linea": "6024",
+          "distancia_ciclo_m": 5175,
+          "tiempo_ciclo_min": 28.24
+        },
+        {
+          "linea": "6025",
+          "distancia_ciclo_m": 6340,
+          "tiempo_ciclo_min": 25.4
+        },
+        {
+          "linea": "6025B",
+          "distancia_ciclo_m": 2585,
+          "tiempo_ciclo_min": 16.96
+        }
+      ]
+    },
+    "DOMINGO": {
+      "minutos_agrupar_usos": 15,
+      "porcentaje_exigido": 0.95,
+      "rutas": [
+        {
+          "linea": "6001",
+          "distancia_ciclo_m": 5549,
+          "tiempo_ciclo_min": 30.0
+        },
+        {
+          "linea": "6002",
+          "distancia_ciclo_m": 14151,
+          "tiempo_ciclo_min": 66.0
+        },
+        {
+          "linea": "6002A",
+          "distancia_ciclo_m": 10844,
+          "tiempo_ciclo_min": 56.0
+        },
+        {
+          "linea": "6003",
+          "distancia_ciclo_m": 7808,
+          "tiempo_ciclo_min": 36.0
+        },
+        {
+          "linea": "6004",
+          "distancia_ciclo_m": 13240,
+          "tiempo_ciclo_min": 58.0
+        },
+        {
+          "linea": "6004A",
+          "distancia_ciclo_m": 14865,
+          "tiempo_ciclo_min": 60.0
+        },
+        {
+          "linea": "6005",
+          "distancia_ciclo_m": 10230,
+          "tiempo_ciclo_min": 58.0
+        },
+        {
+          "linea": "6006C",
+          "distancia_ciclo_m": 3213,
+          "tiempo_ciclo_min": 24.0
+        },
+        {
+          "linea": "6007",
+          "distancia_ciclo_m": 7680,
+          "tiempo_ciclo_min": 60.0
+        },
+        {
+          "linea": "6008",
+          "distancia_ciclo_m": 9079,
+          "tiempo_ciclo_min": 58.0
+        },
+        {
+          "linea": "6009",
+          "distancia_ciclo_m": 9770,
+          "tiempo_ciclo_min": 57.6
+        },
+        {
+          "linea": "6010C",
+          "distancia_ciclo_m": 12701,
+          "tiempo_ciclo_min": 71.0
+        },
+        {
+          "linea": "6011",
+          "distancia_ciclo_m": 3970,
+          "tiempo_ciclo_min": 32.0
+        },
+        {
+          "linea": "6012",
+          "distancia_ciclo_m": 5748,
+          "tiempo_ciclo_min": 40.0
+        },
+        {
+          "linea": "6012A",
+          "distancia_ciclo_m": 4438,
+          "tiempo_ciclo_min": 30.8
+        },
+        {
+          "linea": "6013",
+          "distancia_ciclo_m": 8285,
+          "tiempo_ciclo_min": 55.68
+        },
+        {
+          "linea": "6014",
+          "distancia_ciclo_m": 5104,
+          "tiempo_ciclo_min": 26.0
+        },
+        {
+          "linea": "6014A",
+          "distancia_ciclo_m": 5352,
+          "tiempo_ciclo_min": 30.0
+        },
+        {
+          "linea": "6015A",
+          "distancia_ciclo_m": 10022,
+          "tiempo_ciclo_min": 60.4
+        },
+        {
+          "linea": "6016",
+          "distancia_ciclo_m": 12671,
+          "tiempo_ciclo_min": 63.6
+        },
+        {
+          "linea": "6016A",
+          "distancia_ciclo_m": 10974,
+          "tiempo_ciclo_min": 48.9474
+        },
+        {
+          "linea": "6018",
+          "distancia_ciclo_m": 7423,
+          "tiempo_ciclo_min": 52.7232
+        },
+        {
+          "linea": "6019",
+          "distancia_ciclo_m": 4130,
+          "tiempo_ciclo_min": 51.94
+        },
+        {
+          "linea": "6019A",
+          "distancia_ciclo_m": 4318,
+          "tiempo_ciclo_min": 33.0
+        },
+        {
+          "linea": "6020",
+          "distancia_ciclo_m": 8588,
+          "tiempo_ciclo_min": 52.6
+        },
+        {
+          "linea": "6021",
+          "distancia_ciclo_m": 8161,
+          "tiempo_ciclo_min": 55.2
+        },
+        {
+          "linea": "6022",
+          "distancia_ciclo_m": 12643,
+          "tiempo_ciclo_min": 86.8
+        },
+        {
+          "linea": "6022A",
+          "distancia_ciclo_m": 13582,
+          "tiempo_ciclo_min": 90.4
+        },
+        {
+          "linea": "6023",
+          "distancia_ciclo_m": 3970,
+          "tiempo_ciclo_min": 28.496
+        },
+        {
+          "linea": "6024",
+          "distancia_ciclo_m": 5175,
+          "tiempo_ciclo_min": 28.2
+        },
+        {
+          "linea": "6025",
+          "distancia_ciclo_m": 6340,
+          "tiempo_ciclo_min": 24.6
+        },
+        {
+          "linea": "6025B",
+          "distancia_ciclo_m": 2585,
+          "tiempo_ciclo_min": 16.96
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Entornos virtuales
+.venv/
+venv/
+
+# Archivos de datos (no se suben al repositorio)
+*.xlsx
+*.xls
+*.xlt
+!tests/datos/*.xlsx
+
+# Respaldos y sistema
+_respaldo*/
+.DS_Store
+Thumbs.db
+
+# Base de datos del historial (datos reales de la operación)
+datos/
+
+# Consolidados generados
+consolidados/

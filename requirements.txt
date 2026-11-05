@@ -1,0 +1,8 @@
+# Dependencias de la aplicación
+streamlit>=1.37.0   # ventanas emergentes (st.dialog)
+pandas>=2.2.0
+numpy>=1.26.0
+openpyxl>=3.1.0
+xlrd>=2.0.1          # lectura de archivos .xls antiguos
+holidays>=0.70        # festivos de Colombia (tipo de día)
+altair>=5.0.0       # gráficos del historial (viene con streamlit)
