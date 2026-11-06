@@ -9,6 +9,8 @@ Cada hoja tiene la misma estructura:
     (hojas con validación: leyenda de colores)
     tabla    encabezado verde, filtros, paneles fijos y filas alternadas
 """
+
+from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, time
 from io import BytesIO

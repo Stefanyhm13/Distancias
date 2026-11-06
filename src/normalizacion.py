@@ -1,4 +1,6 @@
 """Funciones puras para limpiar valores sueltos (buses, líneas, horas)."""
+
+from __future__ import annotations
 import re
 import unicodedata
 from datetime import datetime, time

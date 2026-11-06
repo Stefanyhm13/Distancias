@@ -5,6 +5,8 @@ Todas las reglas de negocio y la estructura esperada de los archivos viven aquí
 Si cambia una regla (umbral, horario, rutas) o la plantilla de un informe,
 solo se modifica este archivo.
 """
+
+from __future__ import annotations
 from dataclasses import dataclass
 
 

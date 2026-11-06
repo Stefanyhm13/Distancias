@@ -20,6 +20,8 @@ Un VIAJE es cada registro del informe de servicios. Reglas:
   - Si un bus tiene viajes duplicados (misma línea y misma hora de inicio
     efectivo) y uno tiene distancia 0 y otro mayor, el de distancia 0 se descarta.
 """
+
+from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date
 

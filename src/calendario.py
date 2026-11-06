@@ -12,6 +12,8 @@ calculan aquí con las mismas reglas de la Ley 51 de 1983 ("Ley Emiliani").
 Un festivo nuevo por decreto puede no estar en el calendario todavía: por eso la
 app siempre muestra el tipo detectado y deja cambiarlo antes de analizar.
 """
+
+from __future__ import annotations
 from datetime import date, timedelta
 
 HABIL = "HABIL"

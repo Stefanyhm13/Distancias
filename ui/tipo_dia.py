@@ -5,6 +5,8 @@ Muestra el tipo detectado con el calendario colombiano (HÁBIL, SÁBADO o DOMING
 los festivos cuentan como DOMINGO) y deja confirmarlo o cambiarlo, por si hay un
 festivo por decreto que el calendario aún no tiene.
 """
+
+from __future__ import annotations
 from datetime import date
 from html import escape
 

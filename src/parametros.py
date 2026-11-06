@@ -15,6 +15,8 @@ Hay un juego de parámetros por cada tipo de día (HÁBIL, SÁBADO y DOMINGO/fes
 porque el cumplimiento exigido cambia según el día. Se guardan en un archivo JSON
 para conservarlos entre usos.
 """
+
+from __future__ import annotations
 import copy
 import json
 from dataclasses import dataclass, field

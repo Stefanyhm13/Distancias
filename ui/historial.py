@@ -6,6 +6,8 @@ días destacados y gráficos; y permite ver el detalle y descargar el Excel de u
 
 Este archivo es igual en la versión por viajes y en la versión por franjas.
 """
+
+from __future__ import annotations
 from html import escape
 
 import altair as alt
