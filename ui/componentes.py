@@ -18,6 +18,24 @@ pd.set_option("styler.render.max_elements", 2_000_000)
 RAIZ = Path(__file__).resolve().parent.parent
 ARCHIVO_CSS = RAIZ / "ui" / "estilos.css"
 ARCHIVO_LOGO = RAIZ / "assets" / "logo.png"
+ARCHIVO_FUENTE = RAIZ / "assets" / "fonts" / "Outfit.ttf"   # Google Fonts, licencia OFL
+
+
+def _css_fuente() -> str:
+    """Letra Outfit incrustada en la página (funciona sin internet)."""
+    if not ARCHIVO_FUENTE.exists():
+        return ""
+    datos = base64.b64encode(ARCHIVO_FUENTE.read_bytes()).decode()
+    return f"""
+    @font-face {{
+        font-family: "Outfit"; font-style: normal; font-weight: 100 900; font-display: swap;
+        src: url("data:font/ttf;base64,{datos}") format("truetype");
+    }}
+    html, body, .stApp,
+    .stApp *:not([data-testid="stIconMaterial"]):not(.material-symbols-rounded):not(code):not(pre),
+    [role="dialog"] *:not([data-testid="stIconMaterial"]):not(.material-symbols-rounded):not(code):not(pre) {{
+        font-family: "Outfit", "Source Sans Pro", sans-serif !important;
+    }}"""
 
 ESTILO_VALIDACION = {
     Validacion.REVISAR: "background-color: #FFCCCC; color: #B71C1C; font-weight: bold",
@@ -37,7 +55,8 @@ def _html(contenido: str) -> None:
 def cargar_estilos() -> None:
     fondo = il.uri(il.fondo_pagina())
     paisaje = il.uri(il.paisaje())
-    _html(f"""<style>{ARCHIVO_CSS.read_text(encoding='utf-8')}
+    _html(f"""<style>{_css_fuente()}
+    {ARCHIVO_CSS.read_text(encoding='utf-8')}
     .stApp {{ background: url("{fondo}") center bottom / 100% auto no-repeat fixed, #E8EDE8; }}
     .header-escena {{ background-image: url("{paisaje}"); }}
     </style>""")
@@ -72,8 +91,8 @@ def titulo_seccion(texto: str) -> None:
 
 def selector_archivo(titulo: str, detalle: str, clave: str, tipos: list, icono: str):
     """Etiqueta + cargador de archivo + tarjeta de confirmación."""
-    _html(f"<span style='font-size:0.95rem;font-weight:700;'>{titulo}</span> "
-          f"<span style='font-size:0.82rem;color:#888;'>({detalle})</span>")
+    _html(f'<div class="archivo-titulo"><span>{icono} {titulo}</span>'
+          f'<small>{detalle}</small></div>')
     archivo = st.file_uploader(clave, type=tipos, key=clave, label_visibility="collapsed")
     if archivo:
         tamano = round(archivo.size / 1024 / 1024, 1)
@@ -86,6 +105,10 @@ def selector_archivo(titulo: str, detalle: str, clave: str, tipos: list, icono: 
         </div>
         <div class="file-ok">✔ Cargado correctamente</div>""")
     return archivo
+
+
+def aviso_pequeno(texto: str) -> None:
+    _html(f'<div class="aviso-pequeno">{texto}</div>')
 
 
 def leyenda(pct: str = "95%") -> None:
@@ -133,6 +156,27 @@ def tarjeta_metrica(icono: str, valor: str, etiqueta: str, color: str = "") -> N
         <div class="metric-number {color}">{valor}</div>
         <div class="metric-label">{etiqueta}</div>
     </div>""")
+
+
+def panel_metricas(filas: list[list[tuple]]) -> None:
+    """Varias filas de tarjetas [(icono, valor, etiqueta, color, nota), ...] en una sola
+    cuadrícula: mismo alto y bordes alineados. Una fila de 3 usa tarjetas más anchas."""
+    tarjetas = ""
+    for fila in filas:
+        ancho = " ancho" if len(fila) == 3 else ""
+        for icono, valor, etiqueta, color, *nota in fila:
+            extra = f"<small>{nota[0]}</small>" if nota and nota[0] else ""
+            tarjetas += (f'<div class="metric-card {color}{ancho}">'
+                         f'<span class="metric-icon">{icono}</span>'
+                         f'<div class="metric-number {color}">{valor}</div>'
+                         f'<div class="metric-label">{etiqueta}{extra}</div></div>')
+    _html(f'<div class="metric-panel">{tarjetas}</div>')
+
+
+def numero(valor, decimales: int = 0) -> str:
+    """Número al estilo colombiano: 28.243 / 20.163,9"""
+    texto = f"{valor:,.{decimales}f}"
+    return texto.replace(",", "_").replace(".", ",").replace("_", ".")
 
 
 def fila_metricas(metricas: list[tuple]) -> None:
@@ -262,9 +306,13 @@ def _pie_tabla(mostrados: int, total: int) -> None:
                "clic en el título de una columna para ordenarla".replace(",", "."))
 
 
+# Alto de las tablas de resultados (píxeles)
+ALTO_TABLA = 620
+
+
 def tabla_filtrable(df: pd.DataFrame, clave: str, filtros: list[str],
                     buscador: bool = False, colorear: str | None = None,
-                    alto: int = 440) -> None:
+                    alto: int = ALTO_TABLA) -> None:
     """Tabla con un desplegable por cada columna de `filtros`, buscador general opcional
     y un campo de búsqueda por cada columna."""
     filtrado = _filtrar(df, clave, filtros, buscador)
@@ -303,7 +351,7 @@ def tabla_seleccionable(df: pd.DataFrame, clave: str, filtros: list[str],
         st.session_state[firma_clave] = firma
         st.session_state[version_clave] = st.session_state.get(version_clave, 0) + 1
 
-    c_info, c_todos, c_limpiar = st.columns([3, 1.1, 1.1])
+    c_info, c_todos, c_limpiar = st.columns([3, 1.1, 1.1], vertical_alignment="center")
     with c_todos:
         if st.button("☑️ Marcar visibles", key=f"{clave}_todos", use_container_width=True,
                      help="Marca todos los casos que se ven en la tabla (según los filtros)."):
@@ -315,11 +363,11 @@ def tabla_seleccionable(df: pd.DataFrame, clave: str, filtros: list[str],
             seleccion = set()
             st.session_state[version_clave] = st.session_state.get(version_clave, 0) + 1
 
+    # Las columnas de marcar van al final de la tabla
     base = filtrado.copy()
-    base.insert(0, COLUMNA_MARCA, [i in seleccion for i in base.index])
-    base.insert(1, COLUMNA_EN_CONSOLIDADO, ["✔ Incluido" if i in incluidos else ""
-                                            for i in base.index])
-    alto = alto or min(470, 40 + 35 * max(len(base), 1))
+    base[COLUMNA_EN_CONSOLIDADO] = ["✔ Incluido" if i in incluidos else "" for i in base.index]
+    base[COLUMNA_MARCA] = [i in seleccion for i in base.index]
+    alto = alto or min(ALTO_TABLA, 40 + 35 * max(len(base), 1))
     editado = st.data_editor(
         _con_estilo(base, colorear), key=f"{clave}_editor_{st.session_state[version_clave]}",
         use_container_width=True, height=alto, hide_index=True,

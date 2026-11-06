@@ -26,7 +26,7 @@ import pandas as pd
 
 from config import CARPETA_CONSOLIDADOS, MINUTOS_CASOS_SEGUIDOS, REVISION_DETALLADA
 from src import pso as modulo_pso
-from src.historial import RUTA_BD, _conectar
+from src.historial import RUTA_BD, _conectar, compactar
 from src.normalizacion import numero_bus
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -416,6 +416,33 @@ def quincenas(ruta: Path | None = None) -> list[Quincena]:
 def eliminar(ids: list[int], ruta: Path | None = None) -> None:
     with closing(_conexion(ruta)) as con, con:
         con.executemany("DELETE FROM consolidado_casos WHERE id = ?", [(int(i),) for i in ids])
+
+
+def eliminar_quincenas(lista: list[Quincena], ruta: Path | None = None,
+                       carpeta: Path | None = None) -> tuple[int, int]:
+    """Borra por completo el consolidado de las quincenas elegidas: los registros de la
+    base de datos y la copia del Excel en la carpeta 'consolidados'. Libera el espacio.
+    Devuelve (registros borrados, archivos borrados)."""
+    claves = [(q.clave,) for q in lista]
+    if not claves:
+        return 0, 0
+    with closing(_conexion(ruta)) as con, con:
+        registros = con.executemany("DELETE FROM consolidado_casos WHERE quincena = ?",
+                                    claves).rowcount
+    # El nombre del Excel no lleva el año: solo se borra si ninguna quincena que queda lo usa
+    en_uso = {q.nombre_archivo for q in quincenas(ruta)}
+    carpeta = Path(carpeta or CARPETA)
+    archivos = 0
+    for nombre in {q.nombre_archivo for q in lista} - en_uso:
+        copia = carpeta / nombre
+        try:
+            if copia.exists():
+                copia.unlink()
+                archivos += 1
+        except OSError:            # abierto en Excel o sin permiso: se deja
+            pass
+    compactar(ruta)
+    return registros, archivos
 
 
 def actualizar(id_caso: int, ruta_bus: str, circulacion: str, distancia_km: float | None,

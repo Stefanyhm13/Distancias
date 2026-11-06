@@ -88,3 +88,20 @@ def test_varios_dias_y_eliminar(params, ruta):
 def test_base_vacia(ruta):
     assert bd.dias(ruta).empty
     assert bd.detalle([], ruta).empty
+
+
+def test_borrar_varios_dias_libera_espacio(params, ruta):
+    fechas = [("13/10/2026", "2026-10-13"), ("14/10/2026", "2026-10-14"),
+              ("02/11/2026", "2026-11-02")]
+    resultados = [_resultado(params, f, u) for f, u in fechas]
+    for r in resultados:
+        bd.guardar(r, b"x" * 200_000, "dia.xlsx", ruta=ruta)
+    antes = bd.tamano_bd(ruta)
+
+    assert bd.eliminar_varios([resultados[0].fecha, resultados[2].fecha], ruta) == 2
+    assert list(bd.dias(ruta)["fecha"]) == [pd.Timestamp("2026-10-14")]
+    assert bd.detalle([resultados[0].fecha], ruta).empty
+    assert bd.excel(resultados[2].fecha, ruta) is None
+    assert bd.tamano_bd(ruta) < antes           # el archivo de verdad queda más pequeño
+
+    assert bd.eliminar_varios([], ruta) == 0

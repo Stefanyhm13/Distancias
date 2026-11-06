@@ -95,7 +95,7 @@ def panel_archivos():
 
         listos = usos is not None and servicios is not None
         if not listos:
-            st.info("⬆️ Carga los dos archivos para continuar")
+            ui.aviso_pequeno("⬆️ Carga los dos archivos para continuar")
         _, centro, _ = st.columns([0.3, 3, 0.3])
         with centro:
             pulsado = st.button("🔍 Analizar día", disabled=not listos,
@@ -194,7 +194,7 @@ def panel_resultados(sesion: dict) -> None:
 
 
 # ── Página ────────────────────────────────────────────────────────────────────
-col_izquierda, col_derecha = st.columns([1, 3], gap="medium")
+col_izquierda, col_derecha = st.columns([1.3, 3], gap="large")
 
 with col_izquierda:
     archivo_usos, archivo_servicios, analizar_ahora = panel_archivos()

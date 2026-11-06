@@ -284,14 +284,21 @@ def tarjeta() -> None:
     rutas = _resumen({t: len(p.distancia_95_por_linea()) for t, p in todos.items()})
     pct = _resumen({t: p.pct for t, p in todos.items()})
     minutos = _resumen({t: f"{p.minutos_agrupar_usos} min" for t, p in todos.items()})
+    filas = [
+        ("📅", "Tipos de día", "<b>Hábil</b> · <b>Sábado</b> · <b>Domingo</b>", ""),
+        ("🛣️", "Rutas con distancia", rutas, ""),
+        ("📏", "Exigencia", pct, "de la distancia por minuto"),
+        ("🙋", "Agrupar usos sin viaje", minutos, ""),
+    ]
     st.markdown(
-        f'<div class="param-resumen">'
-        f'<span>📅 Parámetros por tipo de día: <b>Hábil · Sábado · Domingo</b></span>'
-        f'<span>🛣️ Rutas con distancia: {rutas}</span>'
-        f'<span>📏 Exigencia: {pct} de la distancia por minuto</span>'
-        f'<span>🙋 Usos sin viaje agrupados cada {minutos}</span></div>',
+        '<div class="param-resumen">' + "".join(
+            f'<div class="param-fila"><span class="param-icono">{icono}</span>'
+            f'<span class="param-etiqueta">{etiqueta}'
+            + (f'<small>{nota}</small>' if nota else "") +
+            f'</span><span class="param-valor">{valor}</span></div>'
+            for icono, etiqueta, valor, nota in filas) + '</div>',
         unsafe_allow_html=True)
-    _, centro, _ = st.columns([0.5, 3, 0.5])
+    _, centro, _ = st.columns([0.35, 3, 0.35])
     with centro:
         if st.button("⚙️ Modificar parámetros", key="abrir_parametros",
                      use_container_width=True):

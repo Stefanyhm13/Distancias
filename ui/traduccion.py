@@ -122,6 +122,7 @@ TEXTOS = {
 
 # Textos que cambian (ej. "Limit 200MB per file • XLSX, XLS"): [patrón, reemplazo]
 PATRONES = [
+    [r"^Limit (\S+) per file • (.*)$", "$2 · máx. $1"],
     [r"^Limit (\S+) per file(.*)$", "Máximo $1 por archivo$2"],
     [r"^(\S+) per file(.*)$", "Máximo $1 por archivo$2"],
     [r"^(\d+) rows?$", "$1 filas"],

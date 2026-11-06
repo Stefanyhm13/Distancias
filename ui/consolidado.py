@@ -99,7 +99,7 @@ def tabla_resumen(sesion: dict, filtros: list[str]) -> None:
     r = sesion["analisis"]
     quincena = Quincena.de(r.fecha)
     incluidos = _incluidos(r, quincena)
-    _html('<div class="guia-reclamar">✔ Marca en la columna <b>Reclamar</b> los casos que '
+    _html('<div class="guia-reclamar">✔ Marca en la columna <b>Reclamar</b> (al final de la tabla) los casos que '
           'vas a incluir en el consolidado de reclamación. Puedes filtrar y buscar; las marcas '
           'se conservan.</div>')
     seleccion = st.session_state.get(CLAVE_SELECCION, set())
@@ -184,6 +184,8 @@ def panel_consolidado(resultado, quincena: Quincena, seleccion: set, incluidos: 
     pso = bd.cargar_pso()
     with st.container(border=True):
         ui.titulo_seccion("📑 Consolidado de reclamación")
+        if "cons_mensaje" in st.session_state:
+            st.success(f"✅ {st.session_state.pop('cons_mensaje')}")
         _html(f'<div class="cons-quincena"><span class="cons-chip">{quincena.nombre}</span>'
               f'<span>Quincena del {quincena.rango}</span>'
               f'<span class="cons-archivo">📄 {escape(quincena.nombre_archivo)}</span></div>')
@@ -241,6 +243,81 @@ def panel_consolidado(resultado, quincena: Quincena, seleccion: set, incluidos: 
 
         _casos_guardados(quincena, pso)
 
+        st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+        _, c_borrar = st.columns([3, 1.2])
+        with c_borrar:
+            if st.button("🗑️ Borrar consolidados", key="cons_borrar", use_container_width=True,
+                         disabled=not bd.quincenas(),
+                         help="Escoge una o varias quincenas para borrar su consolidado."):
+                _dialogo_borrar_consolidados(quincena)
+
+
+CLAVE_CONFIRMAR_BORRADO = "_cons_confirmar_borrado"
+
+
+def _mb(bytes_: int) -> str:
+    return f"{bytes_ / 1024 / 1024:,.1f} MB".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def _dialogo_borrar_consolidados(actual: Quincena) -> None:
+    """Ventana para escoger qué consolidados (por quincena) borrar, con confirmación."""
+    from src import historial as bd_historial
+    st.session_state[CLAVE_CONFIRMAR_BORRADO] = False
+
+    @st.dialog("🗑️ Borrar consolidados", width="large")
+    def dialogo():
+        lista = bd.quincenas()
+        datos = {q.clave: bd.resumen_quincena(q)["registros"] for q in lista}
+        _html('<div class="borrar-ayuda">Escoge las quincenas cuyo consolidado quieres borrar. '
+              'Se borran sus registros, la evidencia guardada y la copia del Excel en la carpeta '
+              'de consolidados, y se libera el espacio en el servidor. La base de datos ocupa hoy '
+              f'<b>{_mb(bd_historial.tamano_bd())}</b>.</div>')
+        todos = st.checkbox(f"Seleccionar todos los consolidados ({len(lista)})",
+                            key="cons_borrar_todos")
+        seleccion = st.multiselect(
+            "Consolidados a borrar", lista,
+            format_func=lambda q: f"{q.nombre} {q.anio} · {datos[q.clave]} registro(s)",
+            default=[actual] if actual in lista else [], key="cons_borrar_sel",
+            disabled=todos, placeholder="Escoge una o varias quincenas")
+        if todos:
+            seleccion = lista
+        if not seleccion:
+            st.caption("No hay consolidados seleccionados.")
+            return
+
+        if not st.session_state.get(CLAVE_CONFIRMAR_BORRADO):
+            st.button(f"🗑️ Borrar {len(seleccion)} consolidado(s)", type="primary",
+                      key="cons_borrar_pedir", use_container_width=True,
+                      on_click=lambda: st.session_state.update({CLAVE_CONFIRMAR_BORRADO: True}))
+            return
+
+        nombres = ", ".join(f"{q.nombre} {q.anio}" for q in seleccion)
+        total = sum(datos[q.clave] for q in seleccion)
+        _html(f'<div class="aviso-reemplazo">⚠️ ¿Seguro que quieres borrar <b>{len(seleccion)} '
+              f'consolidado(s)</b> con <b>{total} registro(s)</b>?<br>'
+              f'<span class="borrar-lista">{escape(nombres)}</span><br>'
+              '<b>Esta acción no se puede deshacer.</b> Si ya descargaste el Excel, ese archivo '
+              'no se ve afectado.</div>')
+        no, si = st.columns(2)
+        no.button("Cancelar", key="cons_borrar_no", use_container_width=True,
+                  on_click=lambda: st.session_state.update({CLAVE_CONFIRMAR_BORRADO: False}))
+        if si.button("Sí, borrar definitivamente", type="primary", key="cons_borrar_si",
+                     use_container_width=True):
+            antes = bd_historial.tamano_bd()
+            with st.spinner("Borrando y liberando espacio..."):
+                registros, archivos = bd.eliminar_quincenas(seleccion)
+            liberado = max(antes - bd_historial.tamano_bd(), 0)
+            borradas = {q.clave for q in seleccion}
+            generado = st.session_state.get(CLAVE_GENERADO)
+            if generado and generado["quincena"] in borradas:
+                st.session_state.pop(CLAVE_GENERADO, None)
+            st.session_state[CLAVE_CONFIRMAR_BORRADO] = False
+            st.session_state["cons_mensaje"] = (f"Se borraron {len(seleccion)} consolidado(s) ({registros} registro(s), "
+                     f"{archivos} archivo(s) Excel) · espacio liberado: {_mb(liberado)}.")
+            st.rerun()
+
+    dialogo()
+
 
 # ── Casos guardados de la quincena ───────────────────────────────────────────
 
@@ -250,7 +327,6 @@ def _tabla_guardados(casos: list) -> pd.DataFrame:
             return "Por definir"
         return "Escrita en la app" if c.distancia_manual else "PSO"
     return pd.DataFrame({
-        "Quitar": False,
         "Fecha": [f"{c.fecha:%d/%m/%Y}" for c in casos],
         "Unidad": [c.unidad for c in casos],
         "Ruta": [c.ruta for c in casos],
@@ -260,6 +336,7 @@ def _tabla_guardados(casos: list) -> pd.DataFrame:
         "Usuarios": [c.usuarios for c in casos],
         "Distancia (km)": [c.distancia_km for c in casos],
         "Distancia según": [origen(c) for c in casos],
+        "Quitar": False,
     }, index=[c.id for c in casos])
 
 

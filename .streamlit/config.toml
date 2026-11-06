@@ -6,4 +6,7 @@ textColor           = "#1A1A1A"
 font                = "sans serif"
 
 [server]
-maxUploadSize       = 200
+# Tamaño máximo por archivo cargado, en MB (2048 = 2 GB)
+maxUploadSize       = 2048
+# Tamaño máximo de lo que la app envía al navegador (p. ej. el Excel para descargar), en MB
+maxMessageSize      = 2048

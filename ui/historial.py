@@ -72,9 +72,6 @@ def _encabezado_seccion() -> None:
                 <p>Consulta los días guardados, compara los km recorridos y los km por
                    recuperar, y descarga el informe de cualquier día.</p>
             </div>
-            <div class="hist-sep-pasos">
-                <span>📅 Año</span><i>›</i><span>🗓️ Mes</span><i>›</i><span>📆 Día</span>
-            </div>
         </div>
     </div>""")
 
@@ -362,18 +359,67 @@ def _graficos(dias: pd.DataFrame, detalle: pd.DataFrame, periodo: str) -> None:
 
 # ── Consultar un día guardado ─────────────────────────────────────────────────
 
-def _confirmar_eliminar(fecha) -> None:
-    @st.dialog("🗑️ Eliminar día del historial")
+CLAVE_CONFIRMAR_BORRADO = "_hist_confirmar_borrado"
+
+
+def _mb(bytes_: int) -> str:
+    return f"{bytes_ / 1024 / 1024:,.1f} MB".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def _lista_fechas(fechas: list, maximo: int = 8) -> str:
+    textos = [_fecha_corta(f) for f in sorted(fechas)]
+    if len(textos) > maximo:
+        return ", ".join(textos[:maximo]) + f" y {len(textos) - maximo} más"
+    return ", ".join(textos)
+
+
+def _dialogo_borrar_dias(elegido) -> None:
+    """Ventana para escoger qué días borrar del historial, con confirmación."""
+    st.session_state[CLAVE_CONFIRMAR_BORRADO] = False
+
+    @st.dialog("🗑️ Borrar días revisados", width="large")
     def dialogo():
-        _html(f"""<div class="aviso-reemplazo">¿Seguro que quieres eliminar del historial el día
-              <b>{_fecha_larga(fecha)}</b>?<br>Esta acción no se puede deshacer.</div>""")
-        si, no = st.columns(2)
-        if si.button("Sí, eliminar", type="primary", key="hist_eliminar_si"):
-            bd.eliminar(fecha)
-            st.session_state["hist_mensaje"] = f"Se eliminó el día {_fecha_corta(fecha)}."
+        todos_los_dias = sorted(bd.dias()["fecha"], reverse=True)
+        _html('<div class="borrar-ayuda">Escoge los días que quieres borrar del historial. '
+              'Se borran su resumen, sus casos y el Excel guardado, y se libera el espacio '
+              f'en el servidor. La base de datos ocupa hoy <b>{_mb(bd.tamano_bd())}</b>.</div>')
+        todos = st.checkbox(f"Seleccionar todos los días guardados ({len(todos_los_dias)})",
+                            key="hist_borrar_todos")
+        seleccion = st.multiselect(
+            "Días a borrar", todos_los_dias, format_func=_fecha_larga,
+            default=[elegido] if elegido in todos_los_dias else [],
+            key="hist_borrar_dias", disabled=todos, placeholder="Escoge uno o varios días")
+        if todos:
+            seleccion = todos_los_dias
+        if not seleccion:
+            st.caption("No hay días seleccionados.")
+            return
+
+        if not st.session_state.get(CLAVE_CONFIRMAR_BORRADO):
+            st.button(f"🗑️ Borrar {len(seleccion)} día(s)", type="primary",
+                      key="hist_borrar_pedir", use_container_width=True,
+                      on_click=lambda: st.session_state.update({CLAVE_CONFIRMAR_BORRADO: True}))
+            return
+
+        _html(f'<div class="aviso-reemplazo">⚠️ ¿Seguro que quieres borrar <b>{len(seleccion)} '
+              f'día(s)</b> del historial?<br><span class="borrar-lista">'
+              f'{escape(_lista_fechas(seleccion))}</span><br>'
+              '<b>Esta acción no se puede deshacer.</b> Si los necesitas de nuevo tendrás que '
+              'volver a analizarlos.</div>')
+        no, si = st.columns(2)
+        no.button("Cancelar", key="hist_borrar_no", use_container_width=True,
+                  on_click=lambda: st.session_state.update({CLAVE_CONFIRMAR_BORRADO: False}))
+        if si.button("Sí, borrar definitivamente", type="primary", key="hist_borrar_si",
+                     use_container_width=True):
+            antes = bd.tamano_bd()
+            with st.spinner("Borrando y liberando espacio..."):
+                borrados = bd.eliminar_varios(seleccion)
+            liberado = max(antes - bd.tamano_bd(), 0)
+            st.session_state["hist_mensaje"] = (
+                f"Se borraron {borrados} día(s) del historial · espacio liberado: {_mb(liberado)}.")
+            st.session_state[CLAVE_CONFIRMAR_BORRADO] = False
             st.rerun()
-        if no.button("Cancelar", key="hist_eliminar_no"):
-            st.rerun()
+
     dialogo()
 
 
@@ -382,8 +428,10 @@ def _consultar_dia(dias: pd.DataFrame) -> None:
         _html('<div class="section-title">🔎 Consultar un día guardado</div>')
         tabla = dias.sort_values("fecha", ascending=False)
         fechas = list(tabla["fecha"])
-        elegido = st.selectbox("Día", fechas, format_func=_fecha_larga, key="hist_consulta",
-                               label_visibility="collapsed")
+        c_sel, _ = st.columns([1.2, 2])
+        with c_sel:
+            elegido = st.selectbox("Día", fechas, format_func=_fecha_larga, key="hist_consulta",
+                                   label_visibility="collapsed")
         fila = tabla[tabla["fecha"] == elegido].iloc[0]
         tipo = fila.get("tipo_dia")
         tipo_guardado = (f"Analizado como día <b>{NOMBRES_TIPO.get(tipo, tipo)}</b> · "
@@ -401,7 +449,7 @@ def _consultar_dia(dias: pd.DataFrame) -> None:
             <em>{escape(str(fila['archivo_usos'] or '—'))}</em> +
             <em>{escape(str(fila['archivo_servicios'] or '—'))}</em></div>""")
 
-        c_desc, c_elim = st.columns([3, 1])
+        c_desc, c_elim, _ = st.columns([1.3, .7, 2])
         with c_desc:
             archivo = bd.excel(elegido)
             if archivo:
@@ -412,8 +460,9 @@ def _consultar_dia(dias: pd.DataFrame) -> None:
                                         "spreadsheetml.sheet",
                                    use_container_width=True)
         with c_elim:
-            if st.button("🗑️ Eliminar", key="hist_eliminar", use_container_width=True):
-                _confirmar_eliminar(elegido)
+            if st.button("🗑️ Borrar días", key="hist_eliminar", use_container_width=True,
+                         help="Escoge uno o varios días guardados para borrarlos."):
+                _dialogo_borrar_dias(elegido)
 
         revisar = bd.detalle([elegido])
         revisar = revisar[revisar["validacion"].str.startswith("REVISAR")]
@@ -426,7 +475,7 @@ def _consultar_dia(dias: pd.DataFrame) -> None:
                                              "diferencia_m": "Diferencia (m)", "usos": "Usos",
                                              "km_por_recuperar": "Km por recuperar"})
                             .drop(columns=["fecha"]))
-            st.dataframe(vista, hide_index=True, use_container_width=True, height=320,
+            st.dataframe(vista, hide_index=True, use_container_width=True, height=520,
                          column_config={
                              "Km por recuperar": st.column_config.NumberColumn(format="%.2f"),
                              "Recorrido (m)": st.column_config.NumberColumn(format="%d"),
@@ -504,11 +553,10 @@ def seccion() -> None:
     detalle = bd.detalle(list(filtrado["fecha"]))
     _graficos(filtrado, detalle, periodo)
 
-    c_tabla, c_dia = st.columns([1.35, 1], gap="medium")
-    with c_tabla:
-        _tabla_dias(filtrado)
-    with c_dia:
-        _consultar_dia(filtrado)
+    # Una debajo de la otra, a todo lo ancho
+    _tabla_dias(filtrado)
+    st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
+    _consultar_dia(filtrado)
 
 
 # ── Guardar el día analizado (con confirmación si ya existe) ──────────────────

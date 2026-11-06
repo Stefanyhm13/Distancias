@@ -288,3 +288,19 @@ def test_pso_lee_la_hoja_completa():
     hoja = P.leer_pso(excel_pso(SALIDAS_6016))
     assert list(hoja.columns)[:2] == ["Datos Generales Empresa", "Código Línea"]
     assert len(hoja.columns) == 19 and len(hoja) == len(SALIDAS_6016)
+
+
+def test_borrar_consolidados_de_quincenas(params, pso, bd, tmp_path):
+    r = _analizar(params)
+    registros = C.preparar_casos(r, list(range(len(r.resumen))), pso)
+    C.agregar(registros)
+    q = C.Quincena.de(r.fecha)
+    carpeta = tmp_path / "consolidados"
+    carpeta.mkdir()
+    (carpeta / q.nombre_archivo).write_bytes(b"excel")
+
+    assert C.eliminar_quincenas([q], carpeta=carpeta) == (len(registros), 1)
+    assert C.quincenas() == []
+    assert C.casos(q) == []
+    assert not (carpeta / q.nombre_archivo).exists()
+    assert C.eliminar_quincenas([], carpeta=carpeta) == (0, 0)

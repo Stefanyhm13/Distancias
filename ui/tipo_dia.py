@@ -41,14 +41,16 @@ def _contenido(fecha: date) -> None:
     detectado, motivo = tipo_de_dia(fecha)
     nombre = NOMBRES_TIPO[detectado]
 
-    _html(f"""
-    <div class="tipo-dia-aviso">
-        <div class="tipo-dia-fecha">📅 {escape(fecha_larga(fecha))}</div>
-        <div class="tipo-dia-motivo">{escape(motivo)}</div>
-        <div class="tipo-dia-texto">Este día se analizará como</div>
-        <div class="tipo-dia-chip tipo-{detectado.lower()}">{ICONOS[detectado]} {nombre}</div>
-        <div class="tipo-dia-pregunta">¿Desea confirmar o cambiar?</div>
-    </div>""")
+    # Debajo de la fecha solo se aclara cuando es festivo (con su nombre)
+    detalle = (f'<div class="tipo-dia-motivo">{escape(motivo)}</div>'
+               if motivo.startswith("Festivo") else "")
+    # En una sola línea: si queda una línea vacía, Streamlit muestra el HTML como código
+    _html('<div class="tipo-dia-aviso">'
+          f'<div class="tipo-dia-chip tipo-{detectado.lower()}">{ICONOS[detectado]} {nombre}</div>'
+          f'<div class="tipo-dia-fecha">📅 {escape(fecha_larga(fecha))}</div>'
+          f'{detalle}'
+          '<div class="tipo-dia-pregunta">¿Desea confirmar o cambiar?</div>'
+          '</div>')
 
     if not st.session_state.get(CLAVE_CAMBIANDO):
         c_cambiar, c_confirmar = st.columns(2)

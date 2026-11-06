@@ -218,6 +218,35 @@ def eliminar(fecha, ruta: Path | None = None) -> None:
         con.execute("DELETE FROM dias WHERE fecha = ?", (fecha,))
 
 
+def eliminar_varios(fechas: list, ruta: Path | None = None) -> int:
+    """Borra varios días del historial (resumen, detalle y Excel) y libera el espacio.
+    Devuelve cuántos días se borraron."""
+    textos = [(_texto_fecha(f),) for f in fechas]
+    if not textos:
+        return 0
+    with closing(_conectar(ruta)) as con, con:
+        con.executemany("DELETE FROM detalle WHERE fecha = ?", textos)
+        borrados = con.executemany("DELETE FROM dias WHERE fecha = ?", textos).rowcount
+    compactar(ruta)
+    return borrados
+
+
+def compactar(ruta: Path | None = None) -> None:
+    """SQLite no devuelve al disco el espacio de lo que se borra: VACUUM lo reescribe
+    sin ese espacio vacío para que el archivo de verdad quede más pequeño."""
+    ruta = Path(ruta or RUTA_BD)
+    if not ruta.exists():
+        return
+    with closing(sqlite3.connect(ruta)) as con:
+        con.execute("VACUUM")
+
+
+def tamano_bd(ruta: Path | None = None) -> int:
+    """Tamaño del archivo de la base de datos, en bytes."""
+    ruta = Path(ruta or RUTA_BD)
+    return ruta.stat().st_size if ruta.exists() else 0
+
+
 def dias(ruta: Path | None = None) -> pd.DataFrame:
     """Todos los días guardados (sin el Excel), con columnas de año, mes y día."""
     with closing(_conectar(ruta)) as con:
